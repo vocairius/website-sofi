@@ -234,12 +234,7 @@
             // Define photos for each collection
             const photos = collection === 'chiquitos' 
                 ? Array.from({length: 53}, (_, i) => `Rollo1FotosSofi-${String(i + 1).padStart(2, '0')}.jpg`)
-                : [
-                    // Usamos las 7 fotos confirmadas que existen en producción
-                    'Rollo3Cumple-01.jpg', 'Rollo3Cumple-13.jpg', 'Rollo3Cumple-15.jpg',
-                    'Rollo3Cumple-21.jpg', 'Rollo3Cumple-50.jpg', 'Rollo3Cumple-48.jpg',
-                    'Rollo3Cumple-45.jpg'
-                ];
+                : Array.from({length: 120}, (_, i) => `Rollo3Cumple-${String(i + 1).padStart(2, '0')}.jpg`);
 
             try {
                 overlay.classList.remove('hidden');
