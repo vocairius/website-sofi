@@ -222,23 +222,40 @@
                 ];
 
             try {
-                // Download each photo and add to ZIP
-                let added = 0;
-                for (const photo of photos) {
-                    try {
-                        const url = `/${collection}/${photo}`; // absolute path for Vercel/CDN
-                        const response = await fetch(url, { cache: 'no-store' });
-                        if (response.ok) {
-                            const blob = await response.blob();
-                            zip.file(photo, blob);
-                            added++;
-                        } else {
-                            console.warn('No se encontró el archivo en producción:', url, response.status);
-                        }
-                    } catch (error) {
-                        console.warn(`No se pudo cargar la foto: ${photo}`, error);
+                // Helper to fetch with multiple path strategies
+                const fetchWithFallbacks = async (collection, filename) => {
+                    const candidates = [
+                        `${collection}/${filename}`,   // relative
+                        `./${collection}/${filename}`,  // dot-relative
+                        `/${collection}/${filename}`    // absolute
+                    ];
+                    for (const u of candidates) {
+                        try {
+                            const res = await fetch(u, { cache: 'no-store' });
+                            if (res.ok) return await res.blob();
+                        } catch (_) { /* continue */ }
                     }
-                }
+                    throw new Error('No se pudo obtener: ' + filename);
+                };
+
+                // Limit concurrency to avoid saturating red y navegador
+                const maxConcurrent = 4;
+                let index = 0;
+                let added = 0;
+                const worker = async () => {
+                    while (index < photos.length) {
+                        const current = index++;
+                        const name = photos[current];
+                        try {
+                            const blob = await fetchWithFallbacks(collection, name);
+                            zip.file(name, blob);
+                            added++;
+                        } catch (e) {
+                            console.warn(e.message);
+                        }
+                    }
+                };
+                await Promise.all(Array.from({ length: maxConcurrent }, worker));
 
                 if (added === 0) {
                     alert('No se pudieron cargar las fotos desde el servidor. Prueba recargar la página.');
@@ -246,7 +263,7 @@
                 }
 
                 // Generate and download ZIP
-                const content = await zip.generateAsync({ type: 'blob' });
+                const content = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 3 } });
                 saveAs(content, `sofi15_${collection}.zip`);
             } catch (error) {
                 console.error('Error downloading photos:', error);
