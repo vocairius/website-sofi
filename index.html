@@ -223,16 +223,26 @@
 
             try {
                 // Download each photo and add to ZIP
+                let added = 0;
                 for (const photo of photos) {
                     try {
-                        const response = await fetch(`${collection}/${photo}`);
+                        const url = `/${collection}/${photo}`; // absolute path for Vercel/CDN
+                        const response = await fetch(url, { cache: 'no-store' });
                         if (response.ok) {
                             const blob = await response.blob();
                             zip.file(photo, blob);
+                            added++;
+                        } else {
+                            console.warn('No se encontró el archivo en producción:', url, response.status);
                         }
                     } catch (error) {
-                        console.warn(`No se pudo cargar la foto: ${photo}`);
+                        console.warn(`No se pudo cargar la foto: ${photo}`, error);
                     }
+                }
+
+                if (added === 0) {
+                    alert('No se pudieron cargar las fotos desde el servidor. Prueba recargar la página.');
+                    return;
                 }
 
                 // Generate and download ZIP
