@@ -170,6 +170,20 @@
         </div>
     </section>
 
+    <!-- Download Overlay -->
+    <div id="dl-overlay" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-[100]">
+        <div class="absolute inset-0 flex items-center justify-center p-6">
+            <div class="w-full max-w-md glass-effect rounded-2xl p-6 border border-white/10">
+                <h3 class="text-xl font-light mb-4">Preparando tu ZIP…</h3>
+                <div class="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                    <div id="dl-progress" class="h-full bg-yellow-400 rounded-full" style="width:0%"></div>
+                </div>
+                <p id="dl-status" class="text-sm text-white/80 mt-3">Iniciando…</p>
+                <p id="dl-note" class="text-xs text-white/60 mt-2">No cierres la ventana. Puede tardar según la cantidad de fotos.</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Initialize Swiper (CDN bundle already includes modules)
         const swiper = new Swiper('.swiper', {
@@ -208,20 +222,28 @@
         // Download function
         async function downloadPhotos(collection) {
             const zip = new JSZip();
+            const overlay = document.getElementById('dl-overlay');
+            const bar = document.getElementById('dl-progress');
+            const status = document.getElementById('dl-status');
+            const note = document.getElementById('dl-note');
+            const setProgress = (p, msg) => {
+                bar.style.width = Math.max(2, Math.min(100, p)) + '%';
+                if (msg) status.textContent = msg;
+            };
             
             // Define photos for each collection
             const photos = collection === 'chiquitos' 
                 ? Array.from({length: 53}, (_, i) => `Rollo1FotosSofi-${String(i + 1).padStart(2, '0')}.jpg`)
                 : [
-                    'Rollo2Cumple-01.jpg', 'Rollo2Cumple-02.jpg', 'Rollo2Cumple-03.jpg',
-                    'Rollo2Cumple-04.jpg', 'Rollo2Cumple-05.jpg', 'Rollo2Cumple-06.jpg',
-                    'Rollo2Cumple-07.jpg', 'Rollo2Cumple-08.jpg', 'Rollo2Cumple-09.jpg',
-                    'Rollo2Cumple-10.jpg', 'Rollo2Cumple-11.jpg', 'Rollo2Cumple-12.jpg',
-                    'Rollo2Cumple-13.jpg', 'Rollo2Cumple-14.jpg', 'Rollo2Cumple-15.jpg',
-                    'Rollo2Cumple-16.jpg', 'Rollo2Cumple-17.jpg', 'Rollo2Cumple-18.jpg'
+                    // Usamos las 7 fotos confirmadas que existen en producción
+                    'Rollo3Cumple-01.jpg', 'Rollo3Cumple-13.jpg', 'Rollo3Cumple-15.jpg',
+                    'Rollo3Cumple-21.jpg', 'Rollo3Cumple-50.jpg', 'Rollo3Cumple-48.jpg',
+                    'Rollo3Cumple-45.jpg'
                 ];
 
             try {
+                overlay.classList.remove('hidden');
+                setProgress(2, 'Conectando…');
                 // Helper to fetch with multiple path strategies
                 const fetchWithFallbacks = async (collection, filename) => {
                     const candidates = [
@@ -250,6 +272,7 @@
                             const blob = await fetchWithFallbacks(collection, name);
                             zip.file(name, blob);
                             added++;
+                            setProgress((added / photos.length) * 80 + 10, `Descargadas ${added}/${photos.length}…`);
                         } catch (e) {
                             console.warn(e.message);
                         }
@@ -259,15 +282,25 @@
 
                 if (added === 0) {
                     alert('No se pudieron cargar las fotos desde el servidor. Prueba recargar la página.');
+                    overlay.classList.add('hidden');
                     return;
                 }
 
                 // Generate and download ZIP
-                const content = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 3 } });
+                setProgress(90, 'Comprimiendo ZIP…');
+                const content = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 3 } ,
+                    streamFiles: true,
+                    comment: 'Sofi 15'
+                }, (metadata) => {
+                    // onUpdate callback no está disponible en todos los bundles; por compatibilidad, ignoramos
+                });
                 saveAs(content, `sofi15_${collection}.zip`);
+                setProgress(100, 'Listo. Guardando archivo…');
+                setTimeout(() => overlay.classList.add('hidden'), 800);
             } catch (error) {
                 console.error('Error downloading photos:', error);
                 alert('Error al descargar las fotos. Por favor, intenta de nuevo.');
+                overlay.classList.add('hidden');
             }
         }
     </script>
