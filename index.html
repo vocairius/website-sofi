@@ -234,7 +234,12 @@
             // Define photos for each collection
             const photos = collection === 'chiquitos' 
                 ? Array.from({length: 53}, (_, i) => `Rollo1FotosSofi-${String(i + 1).padStart(2, '0')}.jpg`)
-                : Array.from({length: 120}, (_, i) => `Rollo3Cumple-${String(i + 1).padStart(2, '0')}.jpg`);
+                : [
+                    // Rollo2Cumple (18)
+                    'Rollo2Cumple-01.jpg','Rollo2Cumple-02.jpg','Rollo2Cumple-03.jpg','Rollo2Cumple-04.jpg','Rollo2Cumple-05.jpg','Rollo2Cumple-06.jpg','Rollo2Cumple-07.jpg','Rollo2Cumple-08.jpg','Rollo2Cumple-09.jpg','Rollo2Cumple-10.jpg','Rollo2Cumple-11.jpg','Rollo2Cumple-12.jpg','Rollo2Cumple-13.jpg','Rollo2Cumple-14.jpg','Rollo2Cumple-15.jpg','Rollo2Cumple-16.jpg','Rollo2Cumple-17.jpg','Rollo2Cumple-18.jpg',
+                    // Rollo3Cumple (52, falta -27)
+                    'Rollo3Cumple-01.jpg','Rollo3Cumple-02.jpg','Rollo3Cumple-03.jpg','Rollo3Cumple-04.jpg','Rollo3Cumple-05.jpg','Rollo3Cumple-06.jpg','Rollo3Cumple-07.jpg','Rollo3Cumple-08.jpg','Rollo3Cumple-09.jpg','Rollo3Cumple-10.jpg','Rollo3Cumple-11.jpg','Rollo3Cumple-12.jpg','Rollo3Cumple-13.jpg','Rollo3Cumple-14.jpg','Rollo3Cumple-15.jpg','Rollo3Cumple-16.jpg','Rollo3Cumple-17.jpg','Rollo3Cumple-18.jpg','Rollo3Cumple-19.jpg','Rollo3Cumple-20.jpg','Rollo3Cumple-21.jpg','Rollo3Cumple-22.jpg','Rollo3Cumple-23.jpg','Rollo3Cumple-24.jpg','Rollo3Cumple-25.jpg','Rollo3Cumple-26.jpg','Rollo3Cumple-28.jpg','Rollo3Cumple-29.jpg','Rollo3Cumple-30.jpg','Rollo3Cumple-31.jpg','Rollo3Cumple-32.jpg','Rollo3Cumple-33.jpg','Rollo3Cumple-34.jpg','Rollo3Cumple-35.jpg','Rollo3Cumple-36.jpg','Rollo3Cumple-37.jpg','Rollo3Cumple-38.jpg','Rollo3Cumple-39.jpg','Rollo3Cumple-40.jpg','Rollo3Cumple-41.jpg','Rollo3Cumple-42.jpg','Rollo3Cumple-43.jpg','Rollo3Cumple-44.jpg','Rollo3Cumple-45.jpg','Rollo3Cumple-46.jpg','Rollo3Cumple-47.jpg','Rollo3Cumple-48.jpg','Rollo3Cumple-49.jpg','Rollo3Cumple-50.jpg','Rollo3Cumple-51.jpg','Rollo3Cumple-52.jpg'
+                ];
 
             try {
                 overlay.classList.remove('hidden');
